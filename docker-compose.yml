@@ -1,9 +1,7 @@
 version: '2.3'
 services:
-  router:
+  animaniacs:
     image: fabianonunes/animaniacs:1.0.0
-    environment:
-      CHAR: dot
     ports:
       - 3000:3000
     build:

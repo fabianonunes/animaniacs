@@ -1,7 +1,7 @@
 version: '2.3'
 services:
   animaniacs:
-    image: fabianonunes/animaniacs:1.0.0
+    image: fabianonunes/animaniacs:1.1.0
     ports:
       - 3000:3000
     build:

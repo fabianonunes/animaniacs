@@ -848,6 +848,13 @@ loose-envify@^1.3.1:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
+micro-query@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/micro-query/-/micro-query-0.3.0.tgz#10bd973d6248379ab5847ab92d3365fc344f309d"
+  integrity sha1-EL2XPWJIN5q1hHq5LTNl/DRPMJ0=
+  dependencies:
+    qs "6.5.2"
+
 micro@^9.3.3:
   version "9.3.3"
   resolved "https://registry.yarnpkg.com/micro/-/micro-9.3.3.tgz#32728c7be15e807691ead85da27fd8117a8bca24"
@@ -902,6 +909,11 @@ mute-stream@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
+
+native-or-bluebird@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/native-or-bluebird/-/native-or-bluebird-1.2.0.tgz#39c47bfd7825d1fb9ffad32210ae25daadf101c9"
+  integrity sha1-OcR7/Xgl0fuf+tMiEK4l2q3xAck=
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -1110,6 +1122,11 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
+
+qs@6.5.2:
+  version "6.5.2"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
+  integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
 raw-body@2.3.2:
   version "2.3.2"
@@ -1362,6 +1379,13 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
+
+then-sleep@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/then-sleep/-/then-sleep-1.0.1.tgz#759823bdc4de56ba2a20812868eb872a803ed1f9"
+  integrity sha1-dZgjvcTeVroqIIEoaOuHKoA+0fk=
+  dependencies:
+    native-or-bluebird "^1.2.0"
 
 through@^2.3.6:
   version "2.3.8"

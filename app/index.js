@@ -1,14 +1,23 @@
 const { sample } = require('lodash')
+const query = require('micro-query')
+const sleep = require('then-sleep')
 const { yakko, wakko, dot } = require('./animaniacs')
 
 const chars = { yakko, wakko, dot }
 
-const randomChar = (req, res) => { 
+const randomChar = (req, res) => {
   res.setHeader('Content-Type', 'text/plain')
   return sample(chars)
 }
-const char = (req, res) => { 
+
+const char = async (req, res) => {
   res.setHeader('Content-Type', 'text/plain')
+
+  const params = query(req)
+  if (params.sleep) {
+    await sleep(parseInt(params.sleep, 10))
+  }
+
   return chars[process.env.CHAR]
 }
 

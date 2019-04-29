@@ -6,12 +6,12 @@ const { yakko, wakko, dot } = require('./animaniacs')
 const chars = { yakko, wakko, dot }
 
 const randomChar = (req, res) => {
-  res.setHeader('Content-Type', 'text/plain')
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8')
   return sample(chars)
 }
 
 const char = async (req, res) => {
-  res.setHeader('Content-Type', 'text/plain')
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8')
 
   const params = query(req)
   if (params.sleep) {

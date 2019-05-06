@@ -3,6 +3,7 @@ package main
 import (
     "github.com/gin-gonic/gin"
     "math/rand"
+    "net/http"
     "os"
     "strconv"
     "time"
@@ -21,6 +22,11 @@ func randomChar () string {
 func main() {
     char := os.Getenv("CHAR")
     r := gin.Default()
+
+    r.GET("/", func(c *gin.Context) {
+        c.String(http.StatusOK, "Success")
+    })
+
     r.GET("/:name", func(c *gin.Context) {
         sleep := c.Query("sleep")
         if len(sleep) > 0 {

@@ -8,3 +8,6 @@ services:
       - 3000:3000
     build:
       context: .
+      args:
+        http_proxy: ${PROXY}
+        https_proxy: ${PROXY}

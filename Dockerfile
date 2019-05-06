@@ -1,12 +1,11 @@
-FROM node:10.13.0-slim
+FROM golang:alpine
+WORKDIR /app
 
-WORKDIR /animaniacs
+COPY art ./art
 
-COPY package.json yarn.lock ./
-RUN yarn install
+RUN apk update && apk add --no-cache git
+ADD animaniacs.go .
+RUN go get -d -v ./...
+RUN go build -o animaniacs .
 
-COPY app app
-
-USER node
-ENTRYPOINT [ "yarn" ]
-CMD [ "start" ]
+ENTRYPOINT [ "/app/animaniacs" ]

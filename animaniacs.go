@@ -27,7 +27,7 @@ func main() {
         c.String(http.StatusOK, "Success")
     })
 
-    r.GET("/:name", func(c *gin.Context) {
+    r.GET("/v1/:name", func(c *gin.Context) {
         sleep := c.Query("sleep")
         if len(sleep) > 0 {
             duration, err := strconv.ParseInt(sleep, 10, 64)

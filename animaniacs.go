@@ -27,6 +27,10 @@ func main() {
         c.String(http.StatusOK, "Success")
     })
 
+    r.GET("/fail", func(c *gin.Context) {
+        c.String(http.StatusInternalServerError, "Success")
+    })
+
     r.GET("/v1/:name", func(c *gin.Context) {
         sleep := c.Query("sleep")
         if len(sleep) > 0 {

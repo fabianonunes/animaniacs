@@ -28,7 +28,7 @@ func main() {
     })
 
     r.GET("/fail", func(c *gin.Context) {
-        c.String(http.StatusInternalServerError, "Success")
+        c.String(http.StatusInternalServerError, "Error")
     })
 
     r.GET("/v1/:name", func(c *gin.Context) {

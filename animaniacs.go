@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
 	"math/rand"
 	"net/http"
@@ -22,9 +24,27 @@ func randomChar() string {
 func main() {
 	char := os.Getenv("CHAR")
 	r := gin.Default()
+	store := memstore.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("sessionid", store))
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Success")
+	})
+
+	r.GET("/count", func(c *gin.Context) {
+		session := sessions.Default(c)
+		value := session.Get("counter")
+
+		var count int
+		if value == nil {
+			count = 0
+		} else {
+			count = value.(int)
+			count++
+		}
+		session.Set("counter", count)
+		_ = session.Save()
+		c.JSON(200, gin.H{char: count})
 	})
 
 	r.GET("/fail", func(c *gin.Context) {

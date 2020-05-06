@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,7 @@ func randomChar() string {
 func main() {
 	char := os.Getenv("CHAR")
 	r := gin.Default()
+	instanceName := randomdata.SillyName()
 	store := memstore.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("sessionid", store))
 
@@ -44,7 +46,7 @@ func main() {
 		}
 		session.Set("counter", count)
 		_ = session.Save()
-		c.JSON(200, gin.H{char: count})
+		c.JSON(200, gin.H{instanceName: count})
 	})
 
 	r.GET("/fail", func(c *gin.Context) {

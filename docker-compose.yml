@@ -1,7 +1,7 @@
 version: '2.3'
 services:
   animaniacs:
-    image: fabianonunes/animaniacs:2.2.1
+    image: fabianonunes/animaniacs:2.2.6
     environment:
       GIN_MODE: release
     ports:

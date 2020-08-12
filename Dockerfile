@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY art ./art
 
-RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git zstd
 ADD animaniacs.go go.mod go.sum ./
 RUN go build -o animaniacs .
 

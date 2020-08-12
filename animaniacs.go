@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"time"
 )
@@ -22,6 +25,13 @@ func randomChar() string {
 	return chars[rand.Intn(len(chars))]
 }
 
+type ZstdParams struct {
+	Level   int `form:"l"`
+	Threads int `form:"T"`
+}
+
+var f = fmt.Sprintf
+
 func main() {
 	char := os.Getenv("CHAR")
 	r := gin.Default()
@@ -31,6 +41,42 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Success")
+	})
+
+	r.GET("/zec-compress", func(context *gin.Context) {
+		writer := context.Writer
+		fileName := os.Getenv("ZEC_PATH")
+
+		params := &ZstdParams{
+			Level:   1,
+			Threads: 2,
+		}
+		_ = context.ShouldBindQuery(&params)
+
+		pipeReader, pipeWriter := io.Pipe()
+		defer pipeWriter.Close()
+
+		cmd := exec.Command(
+			"zstd",
+			"-qc",
+			f("-T%d", params.Threads),
+			f("-%d", params.Level),
+			fileName,
+		)
+		cmd.Stdout = pipeWriter
+
+		go func() {
+			if _, err := io.Copy(writer, pipeReader); err != nil {
+				_ = pipeWriter.Close()
+			}
+		}()
+
+		_ = cmd.Run()
+	})
+
+	r.GET("/zec", func(context *gin.Context) {
+		filePath := os.Getenv("ZEC_PATH")
+		context.File(filePath)
 	})
 
 	r.GET("/count", func(c *gin.Context) {

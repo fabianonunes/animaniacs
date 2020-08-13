@@ -9,7 +9,6 @@ import (
 	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
 	"io"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -82,25 +81,16 @@ func main() {
 		fileWriter := bufio.NewWriter(file)
 		tee := io.TeeReader(zstdPipeReader, fileWriter)
 
-		defer func() {
-			log.Println("ROOT.defer")
-			_ = zecPipeWriter.Close()
-			_ = zstdPipeWriter.Close()
-		}()
+		defer zecPipeWriter.Close()
+		defer zstdPipeWriter.Close()
 
 		go func() {
-			defer func() {
-				log.Println("first.defer")
-				_ = zecPipeWriter.Close()
-			}()
+			defer zecPipeWriter.Close()
 			_, _ = io.Copy(zecPipeWriter, get.Body)
 		}()
 
 		go func() {
-			defer func() {
-				log.Println("second.defer")
-				zstdPipeWriter.Close()
-			}()
+			defer zstdPipeWriter.Close()
 			if _, err := io.Copy(responseWriter, tee); err != nil {
 				_ = os.Truncate("/tmp/dat.zec", 0)
 			} else {

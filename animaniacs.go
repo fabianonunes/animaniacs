@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
 	"github.com/DataDog/zstd"
 	"github.com/Pallinder/go-randomdata"
@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -57,60 +58,57 @@ func main() {
 	store := memstore.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("sessionid", store))
 
+	file, _ := os.Create("/tmp/dat.zec")
 
-	globalBuffer := new(bytes.Buffer)
 	defaultParams := &ZstdParams{
 		Level:   3,
 		Threads: 0,
 	}
 
-	r.GET("/zec-pipe", func(context *gin.Context) {
-		if globalBuffer.Len() > 0 {
-			reader := bytes.NewReader(globalBuffer.Bytes())
-			context.DataFromReader(
-				http.StatusOK, int64(globalBuffer.Len()), "application/zec", reader, nil,
-			)
-			return
-		}
+	//contentLength := get.Header.Get("Content-Length")
+	//context.Header("sf.com.zec-length", contentLength)
 
-		globalBuffer.Truncate(0)
+	r.GET("/zec-pipe", func(context *gin.Context) {
+		_ = os.Truncate("/tmp/dat.zec", 0)
 		_ = context.ShouldBindQuery(&defaultParams)
 
+		get, _ := netClient.Get("http://localhost:8080/apps/iterator")
 		responseWriter := context.Writer
+
 		zecPipeReader, zecPipeWriter := io.Pipe()
 		zstdPipeReader, zstdPipeWriter := io.Pipe()
-		localBuffer := new(bytes.Buffer)
-		tee := io.TeeReader(zstdPipeReader, localBuffer)
+
+		cmd := compress(zecPipeReader, zstdPipeWriter, defaultParams)
+		fileWriter := bufio.NewWriter(file)
+		tee := io.TeeReader(zstdPipeReader, fileWriter)
 
 		defer func() {
+			log.Println("ROOT.defer")
 			_ = zecPipeWriter.Close()
 			_ = zstdPipeWriter.Close()
 		}()
 
 		go func() {
-			response, _ := netClient.Get("http://localhost:8080/apps/iterator")
-			contentLength := response.Header.Get("Content-Length")
-			context.Header("sf.com.zec-length", contentLength)
 			defer func() {
-				_ = response.Body.Close()
+				log.Println("first.defer")
 				_ = zecPipeWriter.Close()
 			}()
-			_, _ = io.Copy(zecPipeWriter, response.Body)
+			_, _ = io.Copy(zecPipeWriter, get.Body)
 		}()
 
-		cmd := compress(zecPipeReader, zstdPipeWriter, defaultParams)
-
 		go func() {
+			defer func() {
+				log.Println("second.defer")
+				zstdPipeWriter.Close()
+			}()
 			if _, err := io.Copy(responseWriter, tee); err != nil {
-				_ = zstdPipeWriter.Close()
+				_ = os.Truncate("/tmp/dat.zec", 0)
+			} else {
+				_ = fileWriter.Flush()
 			}
 		}()
 
-		if err := cmd.Run(); err != nil {
-			localBuffer.Reset()
-		} else {
-			globalBuffer = localBuffer
-		}
+		_ = cmd.Run()
 	})
 
 	r.GET("/zec-compress", func(context *gin.Context) {

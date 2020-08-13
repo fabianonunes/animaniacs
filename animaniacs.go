@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -38,6 +39,8 @@ var netClient = &http.Client{
 
 var f = fmt.Sprintf
 
+const FilePath = "/tmp/dat.zec"
+
 func compress(input io.Reader, output io.Writer, params *ZstdParams) *exec.Cmd {
 	cmd := exec.Command(
 		"zstd",
@@ -57,17 +60,32 @@ func main() {
 	store := memstore.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("sessionid", store))
 
-	file, _ := os.Create("/tmp/dat.zec")
+	file, _ := os.Create(FilePath)
 
 	defaultParams := &ZstdParams{
 		Level:   3,
 		Threads: 0,
 	}
 
+	var isFileValid bool
+	var mutex = &sync.Mutex{}
+
 	//contentLength := get.Header.Get("Content-Length")
 	//context.Header("sf.com.zec-length", contentLength)
 
 	r.GET("/zec-pipe", func(context *gin.Context) {
+		mutex.Lock()
+		defer mutex.Unlock()
+
+		stat, _ := os.Stat(FilePath)
+		now := time.Now()
+		expiresAt := stat.ModTime().Add(1 * time.Minute)
+
+		if isFileValid && now.Before(expiresAt) {
+			context.File(FilePath)
+			return
+		}
+
 		_ = os.Truncate("/tmp/dat.zec", 0)
 		_ = context.ShouldBindQuery(&defaultParams)
 
@@ -94,9 +112,10 @@ func main() {
 		go func() {
 			defer zstdPipeW.Close()
 			if _, err := io.Copy(responseWriter, tee); err != nil {
-				_ = os.Truncate("/tmp/dat.zec", 0)
+				_ = os.Truncate(FilePath, 0)
 			} else {
 				_ = fileWriter.Flush()
+				isFileValid = true
 			}
 		}()
 

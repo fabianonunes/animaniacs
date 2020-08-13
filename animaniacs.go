@@ -73,24 +73,26 @@ func main() {
 
 		get, _ := netClient.Get("http://localhost:8080/apps/iterator")
 		responseWriter := context.Writer
-
-		zecPipeReader, zecPipeWriter := io.Pipe()
-		zstdPipeReader, zstdPipeWriter := io.Pipe()
-
-		cmd := compress(zecPipeReader, zstdPipeWriter, defaultParams)
 		fileWriter := bufio.NewWriter(file)
-		tee := io.TeeReader(zstdPipeReader, fileWriter)
 
-		defer zecPipeWriter.Close()
-		defer zstdPipeWriter.Close()
+		// (getZec.Body) zecPipeW»|«zecPipeR (compress) zstdPipeW»|«zstdPipeR (tee >fileWriter) > responseWriter
+
+		zecPipeR, zecPipeW := io.Pipe()
+		zstdPipeR, zstdPipeW := io.Pipe()
+
+		command := compress(zecPipeR, zstdPipeW, defaultParams)
+		tee := io.TeeReader(zstdPipeR, fileWriter)
+
+		defer zecPipeW.Close()
+		defer zstdPipeW.Close()
 
 		go func() {
-			defer zecPipeWriter.Close()
-			_, _ = io.Copy(zecPipeWriter, get.Body)
+			defer zecPipeW.Close()
+			_, _ = io.Copy(zecPipeW, get.Body)
 		}()
 
 		go func() {
-			defer zstdPipeWriter.Close()
+			defer zstdPipeW.Close()
 			if _, err := io.Copy(responseWriter, tee); err != nil {
 				_ = os.Truncate("/tmp/dat.zec", 0)
 			} else {
@@ -98,7 +100,7 @@ func main() {
 			}
 		}()
 
-		_ = cmd.Run()
+		_ = command.Run()
 	})
 
 	r.GET("/zec-compress", func(context *gin.Context) {

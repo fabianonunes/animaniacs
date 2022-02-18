@@ -5,7 +5,7 @@ services:
     environment:
       GIN_MODE: release
     ports:
-      - 3000:3000
+    - "3000:3000"
     build:
       context: .
       args:

@@ -24,6 +24,7 @@ func randomChar() string {
 
 func main() {
 	char := os.Getenv("CHAR")
+	ssl, _ := strconv.ParseBool(os.Getenv("SSL"))
 	r := gin.Default()
 	instanceName := randomdata.SillyName()
 	store := memstore.NewStore([]byte("secret"))
@@ -68,5 +69,10 @@ func main() {
 			c.File("./art/" + randomChar())
 		}
 	})
-	_ = r.Run("0.0.0.0:3000")
+
+	if ssl {
+		_ = r.RunTLS("0.0.0.0:3000", "/opt/cert.pem", "/opt/cert.pem")
+	} else {
+		_ = r.Run("0.0.0.0:3000")
+	}
 }

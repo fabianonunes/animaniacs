@@ -29,7 +29,7 @@ func main() {
 	store := memstore.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("sessionid", store))
 
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/healthcheck", func(c *gin.Context) {
 		c.String(http.StatusOK, "Success")
 	})
 
@@ -53,7 +53,7 @@ func main() {
 		c.String(http.StatusInternalServerError, "Error")
 	})
 
-	r.GET("/v1/:name", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		sleep := c.Query("sleep")
 		if len(sleep) > 0 {
 			duration, err := strconv.ParseInt(sleep, 10, 64)

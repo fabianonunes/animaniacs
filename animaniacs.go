@@ -54,6 +54,10 @@ func main() {
 		c.String(http.StatusInternalServerError, "Error")
 	})
 
+	r.GET("/echo", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"clientIP": c.ClientIP(), "char": char})
+	})
+
 	r.GET("/", func(c *gin.Context) {
 		sleep := c.Query("sleep")
 		if len(sleep) > 0 {
